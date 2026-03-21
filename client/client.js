@@ -2,7 +2,7 @@ const io = require("socket.io-client");
 const chalk = require("chalk");
 const createUI = require("./ui");
 
-const socket = io("http://localhost:3000");
+const socket = io("https://backrooms-w4xh.onrender.com/");
 
 const { screen, chatBox, input } = createUI();
 
