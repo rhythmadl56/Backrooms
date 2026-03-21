@@ -2,7 +2,7 @@ const io = require("socket.io-client");
 const chalk = require("chalk");
 const createUI = require("./ui");
 
-const socket = io("http://localhost:3000");
+const socket = io("http://192.168.29.21:3000");
 
 const { screen, chatBox, input } = createUI();
 
