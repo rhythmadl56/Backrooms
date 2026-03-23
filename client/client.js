@@ -2,7 +2,9 @@ const io = require("socket.io-client");
 const chalk = require("chalk");
 const createUI = require("./ui");
 
-const socket = io("https://backrooms-w4xh.onrender.com/");
+const socket = io("https://backrooms-w4xh.onrender.com/", {
+  transports: ["websocket"]
+});
 
 const { screen, chatBox, input } = createUI();
 
