@@ -1,0 +1,21 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "boxen": "^8.0.1",
+    "chalk": "^6.0.0",
+    "commander": "^15.0.0",
+    "figlet": "^1.11.4",
+    "ora": "^9.4.1",
+    "socket.io-client": "^4.8.3"
+  }
+}

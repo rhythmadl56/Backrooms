@@ -1,0 +1,14 @@
+node_modules/
+
+*.log
+
+.env
+
+.vscode/
+
+.DS_Store
+
+.npm/
+
+coverage/
+projectinfo.txt
