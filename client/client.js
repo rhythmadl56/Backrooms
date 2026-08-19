@@ -1,62 +1,378 @@
 const { io } = require("socket.io-client");
-const readline = require("readline");
-
-const socket = io("http://localhost:3000");
 
 const {
     parseCommand,
     executeCommand
 } = require("./commands");
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
+const ui = require("./ui");
+
+const socket = io("http://localhost:3000");
+
+
+// ============================================
+// LOBBY STATE
+// ============================================
+
+let lobbyStep = "menu";
+
+
+// ============================================
+// SOCKET CONNECTION
+// ============================================
+
+socket.on("connect", () => {
+
+    ui.chatBox.log(`[SYSTEM] Connected to Backrooms`);
+    ui.chatBox.log(`[SYSTEM] Socket ID: ${socket.id}`);
+
+    // Start in lobby
+    ui.showLobby();
+
+    ui.screen.render();
+
 });
 
-socket.on("connect", () => {    //waits for connection
-    console.log("Connected!");
-    console.log("Socket ID:", socket.id);
-});
+
+// ============================================
+// WELCOME MESSAGE
+// ============================================
 
 socket.on("welcome", (message) => {
-    console.log(message);
+
+    ui.chatBox.log(`[SYSTEM] ${message}`);
+
+    ui.screen.render();
+
 });
+
+
+// ============================================
+// CHAT MESSAGE
+// ============================================
 
 socket.on("chat-message", (data) => {
-    console.log(`${data.username}: ${data.message}`);
+
+    ui.chatBox.log(
+        `${data.username}: ${data.message}`
+    );
+
+    ui.screen.render();
+
 });
 
-socket.on("disconnect", () => {
-    console.log("Disconnected.");
-});
+
+// ============================================
+// SYSTEM MESSAGE
+// ============================================
 
 socket.on("system-message", (data) => {
-    console.log(`\n[System] ${data.message}`);
+
+    ui.chatBox.log(
+        `[SYSTEM] ${data.message}`
+    );
+
+    ui.screen.render();
+
 });
+
+
+// ============================================
+// USERS LIST
+// ============================================
 
 socket.on("users-list", (users) => {
 
-    console.log("\n===== ONLINE USERS =====");
+    ui.usersBox.setContent(
+        users
+            .map(user => `• ${user}`)
+            .join("\n")
+    );
 
-    users.forEach(user => {
-        console.log("•", user);
-    });
-
-    console.log("========================\n");
+    ui.screen.render();
 
 });
 
-rl.on("line", (input) => {
 
-    const parsed = parseCommand(input);
+// ============================================
+// DISCONNECT
+// ============================================
 
-    if (parsed) {
+socket.on("disconnect", () => {
 
-        executeCommand(parsed, socket);
+    ui.chatBox.log(
+        "[SYSTEM] Disconnected from server."
+    );
+
+    ui.screen.render();
+
+});
+
+
+// ============================================
+// ROOM CREATED
+// ============================================
+
+socket.on("room-created", (room) => {
+
+    lobbyStep = "menu";
+
+    ui.lobbyInput.hide();
+
+    ui.chatBox.log(
+        `[ROOM] Created: ${room.name}`
+    );
+
+    ui.chatBox.log(
+        `[ROOM] Code: ${room.code}`
+    );
+
+    ui.chatBox.log(
+        `[SYSTEM] Share this code with others.`
+    );
+
+    ui.showChat();
+
+});
+
+
+// ============================================
+// ROOM JOINED
+// ============================================
+
+socket.on("room-joined", (room) => {
+
+    lobbyStep = "menu";
+
+    ui.lobbyInput.hide();
+
+    ui.chatBox.log(
+        `[ROOM] Joined: ${room.name}`
+    );
+
+    ui.chatBox.log(
+        `[ROOM] Code: ${room.code}`
+    );
+
+    ui.showChat();
+
+});
+
+
+// ============================================
+// ROOM ERROR
+// ============================================
+
+socket.on("room-error", (message) => {
+
+    lobbyStep = "menu";
+
+    ui.lobbyInput.hide();
+
+    ui.lobbyMenu.setContent(
+        "ROOM ERROR\n\n" +
+        message
+    );
+
+    ui.lobbyStatus.setContent(
+        "Press 1, 2 or 3 to try again."
+    );
+
+    ui.screen.render();
+
+});
+
+
+// ============================================
+// LOBBY - CREATE ROOM
+// ============================================
+
+ui.screen.key("1", () => {
+
+    if (ui.currentView !== "lobby") {
+        return;
+    }
+
+    if (lobbyStep !== "menu") {
+        return;
+    }
+
+    lobbyStep = "create";
+
+    ui.lobbyMenu.setContent(
+        "CREATE A ROOM\n\n" +
+        "Enter a name for your room:"
+    );
+
+    ui.lobbyStatus.setContent(
+        "Room name:"
+    );
+
+    ui.lobbyInput.setValue("");
+
+    ui.lobbyInput.show();
+
+    ui.lobbyInput.focus();
+
+    ui.screen.render();
+
+});
+
+
+// ============================================
+// LOBBY - RANDOM ROOM
+// ============================================
+
+ui.screen.key("2", () => {
+
+    if (ui.currentView !== "lobby") {
+        return;
+    }
+
+    if (lobbyStep !== "menu") {
+        return;
+    }
+
+    lobbyStep = "random";
+
+    ui.lobbyMenu.setContent(
+        "RANDOM ROOM\n\n" +
+        "Finding an available room..."
+    );
+
+    ui.lobbyStatus.setContent(
+        "Please wait..."
+    );
+
+    ui.screen.render();
+
+    socket.emit("random-room");
+
+});
+
+
+// ============================================
+// LOBBY - JOIN BY CODE
+// ============================================
+
+ui.screen.key("3", () => {
+
+    if (ui.currentView !== "lobby") {
+        return;
+    }
+
+    if (lobbyStep !== "menu") {
+        return;
+    }
+
+    lobbyStep = "join";
+
+    ui.lobbyMenu.setContent(
+        "JOIN A ROOM\n\n" +
+        "Enter the 6-character room code:"
+    );
+
+    ui.lobbyStatus.setContent(
+        "Room code:"
+    );
+
+    ui.lobbyInput.setValue("");
+
+    ui.lobbyInput.show();
+
+    ui.lobbyInput.focus();
+
+    ui.screen.render();
+
+});
+
+
+// ============================================
+// LOBBY INPUT
+// ============================================
+
+ui.lobbyInput.on("submit", (value) => {
+
+    value = value.trim();
+
+    if (!value) {
+        return;
+    }
+
+
+    // CREATE ROOM
+    if (lobbyStep === "create") {
+
+        socket.emit(
+            "create-room",
+            value
+        );
+
+    }
+
+
+    // JOIN ROOM
+    else if (lobbyStep === "join") {
+
+        socket.emit(
+            "join-room",
+            value
+        );
+
+    }
+
+});
+
+
+// ============================================
+// CHAT INPUT
+// ============================================
+
+ui.input.on("submit", (message) => {
+
+    message = message.trim();
+
+    if (!message) {
+
+        ui.input.clearValue();
+
+        ui.input.focus();
+
+        ui.screen.render();
 
         return;
     }
 
-    socket.emit("chat-message", input);
+
+    const parsed = parseCommand(message);
+
+
+    // COMMAND
+    if (parsed) {
+
+        executeCommand(parsed, {
+            socket,
+            ui
+        });
+
+    }
+
+
+    // NORMAL MESSAGE
+    else {
+
+        socket.emit(
+            "chat-message",
+            message
+        );
+
+    }
+
+
+    ui.input.clearValue();
+
+    ui.input.focus();
+
+    ui.screen.render();
 
 });

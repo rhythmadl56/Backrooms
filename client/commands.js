@@ -12,58 +12,80 @@ function parseCommand(input) {
     };
 }
 
-// ----------------------------
 
-function helpCommand(socket, args) {
+// --------------------------------
+// COMMAND FUNCTIONS
+// --------------------------------
 
-    console.log("\n========== BACKROOMS COMMANDS ==========\n");
+function helpCommand(context) {
+
+    context.ui.chatBox.log("");
+    context.ui.chatBox.log("========== BACKROOMS COMMANDS ==========");
 
     for (const [name, command] of Object.entries(commands)) {
-        console.log(`/${name.padEnd(10)} - ${command.description}`);
+
+        context.ui.chatBox.log(
+            `/${name.padEnd(10)} - ${command.description}`
+        );
+
     }
 
-    console.log("\n========================================\n");
+    context.ui.chatBox.log("========================================");
+    context.ui.chatBox.log("");
 
-}   
-
-// ----------------------------
-
-function usersCommand(socket) {
-    socket.emit("get-users");
+    context.ui.screen.render();
 }
 
-// ----------------------------
+
+// --------------------------------
+
+function usersCommand(context) {
+
+    context.socket.emit("get-users");
+
+}
+
+
+// --------------------------------
+// COMMAND REGISTRY
+// --------------------------------
 
 const commands = {
 
     help: {
         description: "Show all commands",
         execute: helpCommand
-    },
-
-    users: {
-        description: "List all online users",
-        execute: usersCommand
     }
 
 };
 
-// ----------------------------
 
-function executeCommand(parsed, socket) {
+// --------------------------------
+// EXECUTE COMMAND
+// --------------------------------
+
+function executeCommand(parsed, context) {
+
     const command = commands[parsed.command];
+
     if (!command) {
-        console.log("Unknown command.");
+
+        context.ui.chatBox.log(
+            `[ERROR] Unknown command: /${parsed.command}`
+        );
+
+        context.ui.screen.render();
+
         return;
     }
-    command.execute(socket, parsed.args);
+
+    command.execute(context, parsed.args);
 }
 
-// ----------------------------
+
+// --------------------------------
 
 module.exports = {
-
     parseCommand,
     executeCommand
-
 };
