@@ -15,6 +15,7 @@ const socket = io("http://localhost:3000");
 // ============================================
 
 let lobbyStep = "menu";
+let usernameStep = "menu";
 
 
 // ============================================
@@ -27,7 +28,7 @@ socket.on("connect", () => {
     ui.chatBox.log(`[SYSTEM] Socket ID: ${socket.id}`);
 
     // Start in lobby
-    ui.showLobby();
+    ui.showUsernameScreen();
 
     ui.screen.render();
 
@@ -182,6 +183,106 @@ socket.on("room-error", (message) => {
 
 });
 
+ui.screen.key("1", () => {
+
+    if (ui.currentView !== "username") {
+        return;
+    }
+
+    if (usernameStep !== "menu") {
+        return;
+    }
+
+    usernameStep = "custom";
+
+    ui.usernameMenu.setContent(
+        "CHOOSE YOUR USERNAME\n\n" +
+        "Enter a username:"
+    );
+
+    ui.usernameInput.setValue("");
+
+    ui.usernameInput.show();
+
+    ui.usernameInput.focus();
+
+    ui.screen.render();
+
+});
+ui.screen.key("2", () => {
+
+    if (ui.currentView !== "username") {
+        return;
+    }
+
+    if (usernameStep !== "menu") {
+        return;
+    }
+
+    usernameStep = "random";
+
+    ui.usernameMenu.setContent(
+        "GENERATING USERNAME..."
+    );
+
+    ui.screen.render();
+
+    socket.emit("generate-username");
+
+});
+ui.usernameInput.on("submit", (value) => {
+
+    value = value.trim();
+
+    if (!value) {
+        return;
+    }
+
+    if (usernameStep === "custom") {
+
+        socket.emit(
+            "set-username",
+            value
+        );
+
+    }
+
+});
+socket.on("username-set", (user) => {
+
+    usernameStep = "menu";
+
+    ui.lobbyMenu.setContent(
+        "\n" +
+        `Welcome, ${user.username}!\n\n` +
+        "[1]  Create a room\n" +
+        "[2]  Join a random room\n" +
+        "[3]  Enter room code"
+    );
+
+    ui.lobbyStatus.setContent(
+        "Choose an option"
+    );
+
+    ui.showLobby();
+
+});
+socket.on("username-error", (message) => {
+
+    console.log("USERNAME ERROR:", message);
+
+    usernameStep = "menu";
+
+    ui.usernameInput.hide();
+
+    ui.usernameMenu.setContent(
+        "USERNAME ERROR\n\n" +
+        message
+    );
+
+    ui.screen.render();
+
+});
 
 // ============================================
 // LOBBY - CREATE ROOM

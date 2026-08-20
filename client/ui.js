@@ -161,6 +161,54 @@ const input = blessed.textbox({
     inputOnFocus: true
 });
 
+// ============================================
+// USERNAME SCREEN
+// ============================================
+
+const usernameScreen = blessed.box({
+    top: "center",
+    left: "center",
+    width: 75,
+    height: 22,
+    align: "center"
+});
+
+
+const usernameBanner = blessed.box({
+    top: 1,
+    left: 0,
+    width: "100%",
+    height: 8,
+    content: banner,
+    align: "center",
+    valign: "middle"
+});
+
+
+const usernameMenu = blessed.box({
+    top: 11,
+    left: 0,
+    width: "100%",
+    height: 6,
+    content:
+        "[1]  Choose my own username\n" +
+        "[2]  Generate a random username",
+    align: "center"
+});
+
+
+const usernameInput = blessed.textbox({
+    top: 17,
+    left: "center",
+    width: 45,
+    height: 3,
+    border: {
+        type: "line"
+    },
+    inputOnFocus: true,
+    hidden: true
+});
+
 
 // ============================================
 // VIEW STATE
@@ -176,20 +224,23 @@ let currentView = "lobby";
 function showLobby() {
 
     currentView = "lobby";
+    usernameScreen.hide();
+    usernameBanner.hide();
+    usernameMenu.hide();
+    usernameInput.hide();
 
-    // Hide chat
     header.hide();
     chatBox.hide();
     usersBox.hide();
     input.hide();
 
-    // Show lobby
     lobby.show();
     lobbyBanner.show();
     lobbyMenu.show();
     lobbyStatus.show();
 
     lobbyInput.hide();
+
 
     screen.render();
 }
@@ -203,6 +254,47 @@ function showChat() {
 
     currentView = "chat";
 
+
+    // -------------------------
+    // Hide username screen
+    // -------------------------
+
+    usernameScreen.hide();
+    usernameBanner.hide();
+    usernameMenu.hide();
+    usernameInput.hide();
+
+
+    // -------------------------
+    // Hide lobby
+    // -------------------------
+
+    lobby.hide();
+    lobbyBanner.hide();
+    lobbyMenu.hide();
+    lobbyStatus.hide();
+    lobbyInput.hide();
+
+
+    // -------------------------
+    // Show chat
+    // -------------------------
+
+    header.show();
+    chatBox.show();
+    usersBox.show();
+    input.show();
+
+    input.focus();
+
+
+    screen.render();
+}
+
+function showUsernameScreen() {
+
+    currentView = "username";
+
     // Hide lobby
     lobby.hide();
     lobbyBanner.hide();
@@ -210,13 +302,17 @@ function showChat() {
     lobbyStatus.hide();
     lobbyInput.hide();
 
-    // Show chat
-    header.show();
-    chatBox.show();
-    usersBox.show();
-    input.show();
+    // Hide chat
+    header.hide();
+    chatBox.hide();
+    usersBox.hide();
+    input.hide();
 
-    input.focus();
+    // Show username screen
+    usernameScreen.show();
+    usernameBanner.show();
+    usernameMenu.show();
+    usernameInput.hide();
 
     screen.render();
 }
@@ -237,6 +333,11 @@ screen.append(header);
 screen.append(chatBox);
 screen.append(usersBox);
 screen.append(input);
+
+screen.append(usernameScreen);
+usernameScreen.append(usernameBanner);
+usernameScreen.append(usernameMenu);
+usernameScreen.append(usernameInput);
 
 
 // ============================================
@@ -276,6 +377,12 @@ module.exports = {
 
     showLobby,
     showChat,
+    usernameScreen,
+    usernameBanner,
+    usernameMenu,
+    usernameInput,
+
+    showUsernameScreen,
 
     get currentView() {
         return currentView;
