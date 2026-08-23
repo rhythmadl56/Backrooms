@@ -7,7 +7,12 @@ const {
 
 const ui = require("./ui");
 
-const socket = io("https://backrooms-1.onrender.com");
+const socket = io("https://backrooms-1.onrender.com", {
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000
+});
 
 
 // ============================================
