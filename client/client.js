@@ -7,7 +7,7 @@ const {
 
 const ui = require("./ui");
 
-const socket = io("http://localhost:3000");
+const socket = io("https://backrooms-1.onrender.com");
 
 
 // ============================================
