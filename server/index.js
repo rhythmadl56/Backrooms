@@ -19,8 +19,8 @@ app.get("/", (req, res) => {
     res.send("Backrooms Server is Running...");
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backrooms server running on port ${PORT}`);
 });
