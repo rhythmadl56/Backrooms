@@ -1,5 +1,5 @@
 const { io } = require("socket.io-client");
-
+const blessed = require("blessed");
 const {
     parseCommand,
     executeCommand
@@ -190,13 +190,59 @@ socket.on("room-error", (message) => {
 
 socket.on("user-poked", (data) => {
 
+    // Terminal bell
+    process.stdout.write("\x07");
+
+    // Message in chat
     ui.chatBox.log(
-        `\x07[SYSTEM] 👆 ${data.username} poked you!`
+        `[POKE] 👆 ${data.username} nudged you!`
     );
+
+    // Popup notification
+    const popup = blessed.box({
+        parent: ui.screen,
+        top: "center",
+        left: "center",
+        width: 40,
+        height: 7,
+        border: {
+            type: "line"
+        },
+        label: " NUDGE ",
+        content:
+            `\n   👆 ${data.username} nudged you!\n\n` +
+            "   Press Enter to dismiss",
+        align: "center",
+        valign: "middle",
+        tags: false,
+        keys: true,
+        mouse: true,
+        style: {
+            border: {
+                fg: "yellow"
+            },
+            label: {
+                fg: "yellow"
+            }
+        }
+    });
+
+    popup.focus();
+
+    popup.key(["enter", "escape"], () => {
+
+        popup.destroy();
+
+        ui.input.focus();
+
+        ui.screen.render();
+
+    });
 
     ui.screen.render();
 
 });
+
 socket.on("poke-sent", (data) => {
 
     ui.chatBox.log(
@@ -204,7 +250,7 @@ socket.on("poke-sent", (data) => {
     );
 
     ui.screen.render();
-    
+
 });
 socket.on("poke-error", (message) => {
 
