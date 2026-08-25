@@ -190,8 +190,10 @@ socket.on("room-error", (message) => {
 
 socket.on("user-poked", (data) => {
 
+    // Terminal bell
     process.stdout.write("\x07");
 
+    // Show message in chat
     ui.chatBox.log(
         `[POKE] >> ${data.username} nudged you!`
     );
@@ -219,7 +221,8 @@ socket.on("user-poked", (data) => {
         align: "center",
         valign: "middle",
 
-        tags: false,
+        keys: true,
+        input: true,
 
         style: {
             border: {
@@ -231,31 +234,29 @@ socket.on("user-poked", (data) => {
         }
     });
 
+    // Put popup above everything
     popup.setFront();
 
-    // Temporarily stop the normal chat input
-    ui.input.blur();
+    // Give popup keyboard focus
+    popup.focus();
 
     ui.screen.render();
 
 
-    // IMPORTANT:
-    // Listen at the SCREEN level, not the popup level.
-    const dismissPopup = () => {
+    function dismissPopup() {
 
         popup.destroy();
 
+        // Give control back to chat
         ui.input.focus();
 
         ui.screen.render();
 
-    };
+    }
 
 
-    ui.screen.onceKey(
-        ["enter", "escape"],
-        dismissPopup
-    );
+    // ENTER or ESC closes the popup
+    popup.key(["enter", "escape"], dismissPopup);
 
 });
 
