@@ -205,7 +205,7 @@ socket.on("user-poked", (data) => {
 socket.on("poke-sent", (data) => {
 
     ui.chatBox.log(
-        `[SYSTEM] 👆 You poked ${data.username}.`
+        `[SYSTEM] >> You poked ${data.username}.`
     );
 
     ui.screen.render();
