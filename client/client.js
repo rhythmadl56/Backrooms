@@ -190,15 +190,12 @@ socket.on("room-error", (message) => {
 
 socket.on("user-poked", (data) => {
 
-    // Terminal bell
     process.stdout.write("\x07");
 
-    // Message in chat
     ui.chatBox.log(
-        `[POKE] 👆 ${data.username} nudged you!`
+        `[POKE] >> ${data.username} nudged you!`
     );
 
-    // Popup notification
     const popup = blessed.box({
         parent: ui.screen,
         top: "center",
@@ -210,13 +207,14 @@ socket.on("user-poked", (data) => {
         },
         label: " NUDGE ",
         content:
-            `\n   👆 ${data.username} nudged you!\n\n` +
+            `\n   >> ${data.username} nudged you!\n\n` +
             "   Press Enter to dismiss",
         align: "center",
         valign: "middle",
-        tags: false,
         keys: true,
+        input: true,
         mouse: true,
+        focusable: true,
         style: {
             border: {
                 fg: "yellow"
@@ -227,9 +225,10 @@ socket.on("user-poked", (data) => {
         }
     });
 
+    // Make the popup receive keyboard input
     popup.focus();
 
-    popup.key(["enter", "escape"], () => {
+    const dismissPopup = () => {
 
         popup.destroy();
 
@@ -237,7 +236,12 @@ socket.on("user-poked", (data) => {
 
         ui.screen.render();
 
-    });
+    };
+
+    popup.key(["enter", "escape"], dismissPopup);
+
+    // Also allow clicking the popup
+    popup.on("click", dismissPopup);
 
     ui.screen.render();
 
