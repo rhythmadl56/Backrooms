@@ -1,8 +1,10 @@
+```bash
   ____    _    ____ _  ______   ___   ___  __  __ ____  
  | __ )  / \  / ___| |/ /  _ \ / _ \ / _ \|  \/  / ___| 
  |  _ \ / _ \| |   | ' /| |_) | | | | | | | |\/| \___ \ 
  | |_) / ___ \ |___| . \|  _ <| |_| | |_| | |  | |___) |
  |____/_/   \_\____|_|\_\_| \_\\___/ \___/|_|  |_|____/
+```
 
 A real-time multiplayer **CLI chat app** inspired by the Backrooms. Connect, create rooms, meet random users, and chat entirely from your terminal.
 
