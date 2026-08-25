@@ -198,23 +198,29 @@ socket.on("user-poked", (data) => {
 
     const popup = blessed.box({
         parent: ui.screen,
+
         top: "center",
         left: "center",
-        width: 40,
+
+        width: 42,
         height: 7,
+
         border: {
             type: "line"
         },
+
         label: " NUDGE ",
+
         content:
-            `\n   >> ${data.username} nudged you!\n\n` +
-            "   Press Enter to dismiss",
+            "\n" +
+            `        ${data.username} nudged you!\n\n` +
+            "        Press ENTER to dismiss",
+
         align: "center",
         valign: "middle",
-        keys: true,
-        input: true,
-        mouse: true,
-        focusable: true,
+
+        tags: false,
+
         style: {
             border: {
                 fg: "yellow"
@@ -225,9 +231,16 @@ socket.on("user-poked", (data) => {
         }
     });
 
-    // Make the popup receive keyboard input
-    popup.focus();
+    popup.setFront();
 
+    // Temporarily stop the normal chat input
+    ui.input.blur();
+
+    ui.screen.render();
+
+
+    // IMPORTANT:
+    // Listen at the SCREEN level, not the popup level.
     const dismissPopup = () => {
 
         popup.destroy();
@@ -238,12 +251,11 @@ socket.on("user-poked", (data) => {
 
     };
 
-    popup.key(["enter", "escape"], dismissPopup);
 
-    // Also allow clicking the popup
-    popup.on("click", dismissPopup);
-
-    ui.screen.render();
+    ui.screen.onceKey(
+        ["enter", "escape"],
+        dismissPopup
+    );
 
 });
 
