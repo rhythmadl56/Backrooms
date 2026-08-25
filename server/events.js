@@ -33,12 +33,17 @@ function broadcastUsers(io) {
 // ============================================
 
 function registerSocketEvents(io) {
-
     io.on("connection", (socket) => {
-
         console.log(
             `Socket connected: ${socket.id}`
         );
+        socket.on("poke-user", (targetUsername) => {
+
+            console.log(
+                `[POKE DEBUG] Received poke request for: ${targetUsername}`
+            );
+
+        });
 
 
         // ====================================
@@ -247,11 +252,78 @@ function registerSocketEvents(io) {
             );
 
         });
+               
+        socket.on("poke-user", (targetUsername) => {
+
+            const sender = getUser(socket.id);
+
+            if (!sender) {
+
+                socket.emit(
+                    "poke-error",
+                    "Choose a username first."
+                );
+
+                return;
+            }
 
 
-        // ====================================
-        // CREATE ROOM
-        // ====================================
+            if (!targetUsername || !targetUsername.trim()) {
+
+                socket.emit(
+                    "poke-error",
+                    "Usage: /poke <username>"
+                );
+
+                return;
+            }
+
+
+            const targetName = targetUsername.trim();
+
+            const target = getAllUsers().find(
+                user =>
+                    user.username.toLowerCase() ===
+                    targetName.toLowerCase()
+            );
+            console.log("[POKE TARGET]", target);
+
+
+            if (!target) {
+
+                socket.emit(
+                    "poke-error",
+                    `User "${targetName}" is not online.`
+                );
+
+                return;
+            }
+
+            if (target.socketId === socket.id) {
+
+                socket.emit(
+                    "poke-error",
+                    "You cannot poke yourself."
+                );
+
+                return;
+            }
+
+            io.to(target.socketId).emit(
+                "user-poked",
+                {
+                    username: sender.username
+                }
+            );
+
+            socket.emit(
+                "poke-sent",
+                {
+                    username: target.username
+                }
+            );
+
+        });
 
         socket.on("create-room", (roomName) => {
 

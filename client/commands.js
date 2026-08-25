@@ -17,10 +17,34 @@ function parseCommand(input) {
 // COMMAND FUNCTIONS
 // --------------------------------
 
+function quitCommand(context) {
+
+    context.ui.chatBox.log(
+        "[SYSTEM] Leaving Backrooms..."
+    );
+
+    context.ui.screen.render();
+
+    setTimeout(() => {
+
+        context.socket.disconnect();
+
+        process.exit(0);
+
+    }, 100);
+
+}
+
+
+// --------------------------------
+
 function helpCommand(context) {
 
     context.ui.chatBox.log("");
-    context.ui.chatBox.log("========== BACKROOMS COMMANDS ==========");
+
+    context.ui.chatBox.log(
+        "========== BACKROOMS COMMANDS =========="
+    );
 
     for (const [name, command] of Object.entries(commands)) {
 
@@ -30,10 +54,14 @@ function helpCommand(context) {
 
     }
 
-    context.ui.chatBox.log("========================================");
+    context.ui.chatBox.log(
+        "========================================"
+    );
+
     context.ui.chatBox.log("");
 
     context.ui.screen.render();
+
 }
 
 
@@ -47,6 +75,43 @@ function usersCommand(context) {
 
 
 // --------------------------------
+// POKE COMMAND
+// --------------------------------
+
+function pokeCommand(context, args) {
+
+    context.ui.chatBox.log(
+        `[DEBUG] Poke command received: ${args.join(" ")}`
+    );
+
+    context.ui.screen.render();
+
+    if (args.length === 0) {
+
+        context.ui.chatBox.log(
+            "[ERROR] Usage: /poke <username>"
+        );
+
+        context.ui.screen.render();
+
+        return;
+    }
+
+    const username = args[0];
+
+    context.ui.chatBox.log(
+        `[DEBUG] Sending poke to: ${username}`
+    );
+
+    context.socket.emit(
+        "poke-user",
+        username
+    );
+
+}
+
+
+// --------------------------------
 // COMMAND REGISTRY
 // --------------------------------
 
@@ -55,6 +120,21 @@ const commands = {
     help: {
         description: "Show all commands",
         execute: helpCommand
+    },
+
+    users: {
+        description: "List online users",
+        execute: usersCommand
+    },
+
+    poke: {
+        description: "Poke another user",
+        execute: pokeCommand
+    },
+
+    quit: {
+        description: "Exit Backrooms",
+        execute: quitCommand
     }
 
 };
@@ -80,6 +160,7 @@ function executeCommand(parsed, context) {
     }
 
     command.execute(context, parsed.args);
+
 }
 
 

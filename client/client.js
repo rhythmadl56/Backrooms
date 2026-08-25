@@ -188,6 +188,34 @@ socket.on("room-error", (message) => {
 
 });
 
+socket.on("user-poked", (data) => {
+
+    ui.chatBox.log(
+        `\x07[SYSTEM] 👆 ${data.username} poked you!`
+    );
+
+    ui.screen.render();
+
+});
+socket.on("poke-sent", (data) => {
+
+    ui.chatBox.log(
+        `[SYSTEM] 👆 You poked ${data.username}.`
+    );
+
+    ui.screen.render();
+    
+});
+socket.on("poke-error", (message) => {
+
+    ui.chatBox.log(
+        `[ERROR] ${message}`
+    );
+
+    ui.screen.render();
+
+});
+
 ui.screen.key("1", () => {
 
     if (ui.currentView !== "username") {

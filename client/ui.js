@@ -214,7 +214,7 @@ const usernameInput = blessed.textbox({
 // VIEW STATE
 // ============================================
 
-let currentView = "lobby";
+let currentView = null;
 
 
 // ============================================
@@ -347,14 +347,6 @@ usernameScreen.append(usernameInput);
 screen.key(["C-c"], () => {
     process.exit(0);
 });
-
-
-// ============================================
-// INITIAL VIEW
-// ============================================
-
-showLobby();
-
 
 // ============================================
 // EXPORT
