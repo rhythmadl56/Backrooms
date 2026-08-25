@@ -193,70 +193,12 @@ socket.on("user-poked", (data) => {
     // Terminal bell
     process.stdout.write("\x07");
 
-    // Show message in chat
+    // Show poke in chat
     ui.chatBox.log(
-        `[POKE] >> ${data.username} nudged you!`
+        `[POKE] >> ${data.username} poked you!`
     );
 
-    const popup = blessed.box({
-        parent: ui.screen,
-
-        top: "center",
-        left: "center",
-
-        width: 42,
-        height: 7,
-
-        border: {
-            type: "line"
-        },
-
-        label: " NUDGE ",
-
-        content:
-            "\n" +
-            `        ${data.username} nudged you!\n\n` +
-            "        Press ENTER to dismiss",
-
-        align: "center",
-        valign: "middle",
-
-        keys: true,
-        input: true,
-
-        style: {
-            border: {
-                fg: "yellow"
-            },
-            label: {
-                fg: "yellow"
-            }
-        }
-    });
-
-    // Put popup above everything
-    popup.setFront();
-
-    // Give popup keyboard focus
-    popup.focus();
-
     ui.screen.render();
-
-
-    function dismissPopup() {
-
-        popup.destroy();
-
-        // Give control back to chat
-        ui.input.focus();
-
-        ui.screen.render();
-
-    }
-
-
-    // ENTER or ESC closes the popup
-    popup.key(["enter", "escape"], dismissPopup);
 
 });
 
